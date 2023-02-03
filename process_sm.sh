@@ -1,0 +1,135 @@
+#!/bin/bash
+
+fol=~/work/fransje/DATA/esacci_soilmoisture/
+
+#mergetime
+# for year in {1978..2020}
+# do
+# cd $fol/$year/
+# cdo mergetime *.nc ESACCI-SOILMOISTURE-$year.nc
+# done
+
+#monthly and regrid
+# for year in {1993..2019}
+# do
+# cd $fol/$year/
+# cdo monmean ESACCI-SOILMOISTURE-$year.nc ESACCI-SOILMOISTURE-$year-monthly2.nc
+# cdo -setday,15 ESACCI-SOILMOISTURE-$year-monthly2.nc ESACCI-SOILMOISTURE-$year-monthly.nc
+# cdo -b F32 -f nc4 remapcon,n128 ESACCI-SOILMOISTURE-$year-monthly.nc ESACCI-SOILMOISTURE-$year-monthly-T255.nc
+# cp ESACCI-SOILMOISTURE-$year-monthly-T255.nc $fol/processed/
+# done
+
+# #mergetime 1993-2019
+cd $fol/processed/
+# cdo mergetime *.nc ESACCI-SOILMOISTURE-1993-2019-monthly-T255t.nc
+mv ESACCI-SOILMOISTURE-1993-2019-monthly-T255.nc ESACCI-SOILMOISTURE-1993-2019-monthly-T255t.nc
+cdo -settime,00:00:00 ESACCI-SOILMOISTURE-1993-2019-monthly-T255t.nc ESACCI-SOILMOISTURE-1993-2019-monthly-T255.nc
+
+# climatology
+cdo ymonmean ESACCI-SOILMOISTURE-1993-2019-monthly-T255.nc ESACCI-SOILMOISTURE-1993-2019-climatology.nc
+cdo ymonstd ESACCI-SOILMOISTURE-1993-2019-monthly-T255.nc ESACCI-SOILMOISTURE-1993-2019-stdclimatology.nc
+
+# anomalies
+cdo sub ESACCI-SOILMOISTURE-1993-2019-monthly-T255.nc ESACCI-SOILMOISTURE-1993-2019-climatology.nc ESACCI-SOILMOISTURE-1993-2019-ia_anomalies.nc
+cdo div ESACCI-SOILMOISTURE-1993-2019-ia_anomalies.nc ESACCI-SOILMOISTURE-1993-2019-stdclimatology.nc ESACCI-SOILMOISTURE-1993-2019-stdia_anomalies.nc
+
+#uncertainty
+cdo -selvar,sm_uncertainty ESACCI-SOILMOISTURE-1993-2019-monthly-T255.nc ESACCI-SOILMOISTURE-1993-2019-monthly-T255_uncertainty.nc
+cdo -selvar,sm ESACCI-SOILMOISTURE-1993-2019-stdclimatology.nc ESACCI-SOILMOISTURE-1993-2019-stdclimatology_sm.nc
+cdo div ESACCI-SOILMOISTURE-1993-2019-monthly-T255_uncertainty.nc ESACCI-SOILMOISTURE-1993-2019-stdclimatology_sm.nc ESACCI-SOILMOISTURE-1993-2019-stduncertainty.nc
+
+# seasons
+cdo delete,timestep=1,2,-1 ESACCI-SOILMOISTURE-1993-2019-monthly-T255.nc ESACCI-SOILMOISTURE-1993-2019-monthly-T255_del.nc
+cdo seasmean ESACCI-SOILMOISTURE-1993-2019-monthly-T255_del.nc ESACCI-SOILMOISTURE-1993-2019-seasonal.nc
+cdo -selmonth,4 ESACCI-SOILMOISTURE-1993-2019-seasonal.nc ESACCI-SOILMOISTURE-1993-2019_mam.nc
+cdo -selmonth,7 ESACCI-SOILMOISTURE-1993-2019-seasonal.nc ESACCI-SOILMOISTURE-1993-2019_jja.nc
+cdo -selmonth,10 ESACCI-SOILMOISTURE-1993-2019-seasonal.nc ESACCI-SOILMOISTURE-1993-2019_son.nc
+cdo -selmonth,1 ESACCI-SOILMOISTURE-1993-2019-seasonal.nc ESACCI-SOILMOISTURE-1993-2019_djf.nc
+
+cdo yseasstd ESACCI-SOILMOISTURE-1993-2019-monthly-T255_del.nc ESACCI-SOILMOISTURE-1993-2019-seasonal.nc
+cdo -selmonth,5 ESACCI-SOILMOISTURE-1993-2019-seasonal.nc ESACCI-SOILMOISTURE-1993-2019_stdmam.nc
+cdo -selmonth,8 ESACCI-SOILMOISTURE-1993-2019-seasonal.nc ESACCI-SOILMOISTURE-1993-2019_stdjja.nc
+cdo -selmonth,11 ESACCI-SOILMOISTURE-1993-2019-seasonal.nc ESACCI-SOILMOISTURE-1993-2019_stdson.nc
+cdo -selmonth,2 ESACCI-SOILMOISTURE-1993-2019-seasonal.nc ESACCI-SOILMOISTURE-1993-2019_stddjf.nc
+
+
+# seasonal anomalies
+cdo timmean ESACCI-SOILMOISTURE-1993-2019_djf.nc ESACCI-SOILMOISTURE-1993-2019_djf_mean.nc
+cdo sub ESACCI-SOILMOISTURE-1993-2019_djf.nc ESACCI-SOILMOISTURE-1993-2019_djf_mean.nc ESACCI-SOILMOISTURE-1993-2019_djf_anomalies.nc
+
+cdo timmean ESACCI-SOILMOISTURE-1993-2019_mam.nc ESACCI-SOILMOISTURE-1993-2019_mam_mean.nc
+cdo sub ESACCI-SOILMOISTURE-1993-2019_mam.nc ESACCI-SOILMOISTURE-1993-2019_mam_mean.nc ESACCI-SOILMOISTURE-1993-2019_mam_anomalies.nc
+
+cdo timmean ESACCI-SOILMOISTURE-1993-2019_jja.nc ESACCI-SOILMOISTURE-1993-2019_jja_mean.nc
+cdo sub ESACCI-SOILMOISTURE-1993-2019_jja.nc ESACCI-SOILMOISTURE-1993-2019_jja_mean.nc ESACCI-SOILMOISTURE-1993-2019_jja_anomalies.nc
+
+cdo timmean ESACCI-SOILMOISTURE-1993-2019_son.nc ESACCI-SOILMOISTURE-1993-2019_son_mean.nc
+cdo sub ESACCI-SOILMOISTURE-1993-2019_son.nc ESACCI-SOILMOISTURE-1993-2019_son_mean.nc ESACCI-SOILMOISTURE-1993-2019_son_anomalies.nc
+
+#seasonal standardized anomalies
+cdo div ESACCI-SOILMOISTURE-1993-2019_djf_anomalies.nc ESACCI-SOILMOISTURE-1993-2019_stddjf.nc ESACCI-SOILMOISTURE-1993-2019_djf_stdanomalies.nc
+cdo div ESACCI-SOILMOISTURE-1993-2019_son_anomalies.nc ESACCI-SOILMOISTURE-1993-2019_stdson.nc ESACCI-SOILMOISTURE-1993-2019_son_stdanomalies.nc
+cdo div ESACCI-SOILMOISTURE-1993-2019_mam_anomalies.nc ESACCI-SOILMOISTURE-1993-2019_stdmam.nc ESACCI-SOILMOISTURE-1993-2019_mam_stdanomalies.nc
+cdo div ESACCI-SOILMOISTURE-1993-2019_jja_anomalies.nc ESACCI-SOILMOISTURE-1993-2019_stdjja.nc ESACCI-SOILMOISTURE-1993-2019_jja_stdanomalies.nc
+
+
+#1999-2019
+cd $fol/processed/
+# cdo mergetime *.nc ESACCI-SOILMOISTURE-1999-2019-monthly-T255t.nc
+mv ESACCI-SOILMOISTURE-1999-2019-monthly-T255.nc ESACCI-SOILMOISTURE-1999-2019-monthly-T255t.nc
+cdo -settime,00:00:00 ESACCI-SOILMOISTURE-1999-2019-monthly-T255t.nc ESACCI-SOILMOISTURE-1999-2019-monthly-T255.nc
+
+# climatology
+cdo ymonmean ESACCI-SOILMOISTURE-1999-2019-monthly-T255.nc ESACCI-SOILMOISTURE-1999-2019-climatology.nc
+cdo ymonstd ESACCI-SOILMOISTURE-1999-2019-monthly-T255.nc ESACCI-SOILMOISTURE-1999-2019-stdclimatology.nc
+
+# anomalies
+cdo sub ESACCI-SOILMOISTURE-1999-2019-monthly-T255.nc ESACCI-SOILMOISTURE-1999-2019-climatology.nc ESACCI-SOILMOISTURE-1999-2019-ia_anomalies.nc
+cdo div ESACCI-SOILMOISTURE-1999-2019-ia_anomalies.nc ESACCI-SOILMOISTURE-1999-2019-stdclimatology.nc ESACCI-SOILMOISTURE-1999-2019-stdia_anomalies.nc
+
+#uncertainty
+cdo -selvar,sm_uncertainty ESACCI-SOILMOISTURE-1999-2019-monthly-T255.nc ESACCI-SOILMOISTURE-1999-2019-monthly-T255_uncertainty.nc
+cdo -selvar,sm ESACCI-SOILMOISTURE-1999-2019-stdclimatology.nc ESACCI-SOILMOISTURE-1999-2019-stdclimatology_sm.nc
+cdo div ESACCI-SOILMOISTURE-1999-2019-monthly-T255_uncertainty.nc ESACCI-SOILMOISTURE-1999-2019-stdclimatology_sm.nc ESACCI-SOILMOISTURE-1999-2019-stduncertainty.nc
+
+#uncertainty2
+cdo -selvar,sm ESACCI-SOILMOISTURE-1999-2019-ia_anomalies.nc ESACCI-SOILMOISTURE-1999-2019-ia_anomalies_sm.nc
+cdo add ESACCI-SOILMOISTURE-1999-2019-ia_anomalies_sm.nc ESACCI-SOILMOISTURE-1999-2019-monthly-T255_uncertainty.nc ESACCI-SOILMOISTURE-1999-2019-ia_anomalies_sm_up.nc
+cdo div ESACCI-SOILMOISTURE-1999-2019-ia_anomalies_sm_up.nc ESACCI-SOILMOISTURE-1999-2019-stdclimatology.nc ESACCI-SOILMOISTURE-1999-2019-stdia_anomalies_up.nc
+
+cdo sub ESACCI-SOILMOISTURE-1999-2019-ia_anomalies_sm.nc ESACCI-SOILMOISTURE-1999-2019-monthly-T255_uncertainty.nc ESACCI-SOILMOISTURE-1999-2019-ia_anomalies_sm_um.nc
+cdo div ESACCI-SOILMOISTURE-1999-2019-ia_anomalies_sm_um.nc ESACCI-SOILMOISTURE-1999-2019-stdclimatology.nc ESACCI-SOILMOISTURE-1999-2019-stdia_anomalies_um.nc
+
+# seasons
+cdo delete,timestep=1,2,-1 ESACCI-SOILMOISTURE-1999-2019-monthly-T255.nc ESACCI-SOILMOISTURE-1999-2019-monthly-T255_del.nc
+cdo seasmean ESACCI-SOILMOISTURE-1999-2019-monthly-T255_del.nc ESACCI-SOILMOISTURE-1999-2019-seasonal.nc
+cdo -selmonth,4 ESACCI-SOILMOISTURE-1999-2019-seasonal.nc ESACCI-SOILMOISTURE-1999-2019_mam.nc
+cdo -selmonth,7 ESACCI-SOILMOISTURE-1999-2019-seasonal.nc ESACCI-SOILMOISTURE-1999-2019_jja.nc
+cdo -selmonth,10 ESACCI-SOILMOISTURE-1999-2019-seasonal.nc ESACCI-SOILMOISTURE-1999-2019_son.nc
+cdo -selmonth,1 ESACCI-SOILMOISTURE-1999-2019-seasonal.nc ESACCI-SOILMOISTURE-1999-2019_djf.nc
+
+cdo yseasstd ESACCI-SOILMOISTURE-1999-2019-monthly-T255_del.nc ESACCI-SOILMOISTURE-1999-2019-seasonal.nc
+cdo -selmonth,5 ESACCI-SOILMOISTURE-1999-2019-seasonal.nc ESACCI-SOILMOISTURE-1999-2019_stdmam.nc
+cdo -selmonth,8 ESACCI-SOILMOISTURE-1999-2019-seasonal.nc ESACCI-SOILMOISTURE-1999-2019_stdjja.nc
+cdo -selmonth,11 ESACCI-SOILMOISTURE-1999-2019-seasonal.nc ESACCI-SOILMOISTURE-1999-2019_stdson.nc
+cdo -selmonth,2 ESACCI-SOILMOISTURE-1999-2019-seasonal.nc ESACCI-SOILMOISTURE-1999-2019_stddjf.nc
+
+
+# seasonal anomalies
+cdo timmean ESACCI-SOILMOISTURE-1999-2019_djf.nc ESACCI-SOILMOISTURE-1999-2019_djf_mean.nc
+cdo sub ESACCI-SOILMOISTURE-1999-2019_djf.nc ESACCI-SOILMOISTURE-1999-2019_djf_mean.nc ESACCI-SOILMOISTURE-1999-2019_djf_anomalies.nc
+
+cdo timmean ESACCI-SOILMOISTURE-1999-2019_mam.nc ESACCI-SOILMOISTURE-1999-2019_mam_mean.nc
+cdo sub ESACCI-SOILMOISTURE-1999-2019_mam.nc ESACCI-SOILMOISTURE-1999-2019_mam_mean.nc ESACCI-SOILMOISTURE-1999-2019_mam_anomalies.nc
+
+cdo timmean ESACCI-SOILMOISTURE-1999-2019_jja.nc ESACCI-SOILMOISTURE-1999-2019_jja_mean.nc
+cdo sub ESACCI-SOILMOISTURE-1999-2019_jja.nc ESACCI-SOILMOISTURE-1999-2019_jja_mean.nc ESACCI-SOILMOISTURE-1999-2019_jja_anomalies.nc
+
+cdo timmean ESACCI-SOILMOISTURE-1999-2019_son.nc ESACCI-SOILMOISTURE-1999-2019_son_mean.nc
+cdo sub ESACCI-SOILMOISTURE-1999-2019_son.nc ESACCI-SOILMOISTURE-1999-2019_son_mean.nc ESACCI-SOILMOISTURE-1999-2019_son_anomalies.nc
+
+#seasonal standardized anomalies
+cdo div ESACCI-SOILMOISTURE-1999-2019_djf_anomalies.nc ESACCI-SOILMOISTURE-1999-2019_stddjf.nc ESACCI-SOILMOISTURE-1999-2019_djf_stdanomalies.nc
+cdo div ESACCI-SOILMOISTURE-1999-2019_son_anomalies.nc ESACCI-SOILMOISTURE-1999-2019_stdson.nc ESACCI-SOILMOISTURE-1999-2019_son_stdanomalies.nc
+cdo div ESACCI-SOILMOISTURE-1999-2019_mam_anomalies.nc ESACCI-SOILMOISTURE-1999-2019_stdmam.nc ESACCI-SOILMOISTURE-1999-2019_mam_stdanomalies.nc
+cdo div ESACCI-SOILMOISTURE-1999-2019_jja_anomalies.nc ESACCI-SOILMOISTURE-1999-2019_stdjja.nc ESACCI-SOILMOISTURE-1999-2019_jja_stdanomalies.nc
