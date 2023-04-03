@@ -25,7 +25,7 @@ Prepare figures:
 - paper_figures_lc.ipynb
 - paper_figures_lai.ipynb
 - paper_figures_fcover.ipynb
-- paper_figures_fcover-lai-lc.ipynb
+- paper_figures_feedbacks.ipynb
 - paper_figures_drought.ipynb
 - paper_figures_corr_maps.ipynb
 - global_et_es_ei.ipynb
